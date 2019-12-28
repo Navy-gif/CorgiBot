@@ -9,7 +9,9 @@ module.exports = {
 	started: ~~(Date.now()/1000),
 	devs: ['132777808362471424'],
 	util: {},
-	debug: true
+	debug: true,
+	db: null,
+	database: null
 }
 
 require('./Library/Utilities/Startup').init();
