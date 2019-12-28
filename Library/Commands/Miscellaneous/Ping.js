@@ -12,7 +12,7 @@ class Ping extends Command {
 
     async call() {
 
-
+        return 'PING!';
 
     }
 
