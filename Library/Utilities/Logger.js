@@ -26,7 +26,9 @@ class Logger {
     log(text) {
 
         if(!this.logbook) return;
-        this.logbook.write(`${text}\n`);
+        let date = new Date();
+        let offset = -date.getTimezoneOffset()/60;
+        this.logbook.write(`${date.getHours()}:${date.getMinutes()}:${date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds() } (GMT${offset >= 0 ? '+' + offset : '-' + offset }) - ${text}\n`);
 
     }
 
@@ -39,8 +41,8 @@ class Logger {
 
     error(text) {
 
-        this.log(`!! ${text} !!`);
-        console.error(`!! ${text} !!`);
+        this.log(`⚠️ [ERROR] ${text}`);
+        console.error(`⚠️ [ERROR] ${text}`);
 
     }
 
