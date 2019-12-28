@@ -5,12 +5,16 @@ class Command {
         this.name = data.name;
         this.aliases = data.aliases || [];
         this.group;
+        this.devOnly = data.devOnly || false;
+        this.perms = data.perms || false;
 
     }
 
-    async call() {
+    call() {
 
-        return `This command (${this.name}) has yet to be defined.`;
+        return new Promise((resolve, reject) => {
+            resolve(`This command (${this.name}) has yet to be defined.`);
+        });
 
     }
 
