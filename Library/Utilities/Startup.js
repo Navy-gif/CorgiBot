@@ -20,8 +20,6 @@ class Startup {
         //Bot
         index.bot = await bot.init(process.cwd(), require('../../../Config/BotConfig.json'));
 
-        //Commands
-
     }
 
 }
