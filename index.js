@@ -7,8 +7,9 @@ process.on('warning', (warning) => {
 module.exports = {
 	bot: null,
 	started: ~~(Date.now()/1000),
-	devs: [],
-	util: {}
+	devs: ['132777808362471424'],
+	util: {},
+	debug: true
 }
 
 require('./Library/Utilities/Startup').init();
