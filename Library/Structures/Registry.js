@@ -52,6 +52,12 @@ class Registry {
 
     }
 
+    /**
+     * Fetch a command from the registry
+     * @param {String} cmd name or alias of the command
+     * @returns {Command} returns a command matching the cmd search word, false if no command found
+     * @memberof Registry
+     */
     find(cmd) {
 
         logger.debug('Attempting to find command: ' + cmd);
@@ -59,7 +65,7 @@ class Registry {
         let command = this.commands.get(cmd);
         if(command) return command;
 
-        command = this.commands.find(val => {val.aliases.includes(cmd)});
+        command = this.commands.find(val => {return val.aliases.includes(cmd)});
         if(command) return command;
 
         return false;
