@@ -1,5 +1,6 @@
 //const logfolder = require('../../Logs');
 const fs = require('fs');
+const index = require('../../index');
 
 class Logger {
 
@@ -40,6 +41,14 @@ class Logger {
 
         this.log(`!! ${text} !!`);
         console.error(`!! ${text} !!`);
+
+    }
+
+    debug(text) {
+
+        if(!index.debug) return;
+        this.log(`[DEBUG] ${text}`); //[${this.debug.caller}]
+        console.log(`[DEBUG] ${text}`)
 
     }
 
