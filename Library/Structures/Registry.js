@@ -38,8 +38,9 @@ class Registry {
                     let command = require(cmdPath);
 
                     if(!this.groups.has(dir.name)) this.groups.set(dir.name, new Collection());
-                    this.groups.get(dir.name).set(cmd, command);
-                    this.commands.set(cmd, command);
+                    this.groups.get(dir.name).set(command.name, command);
+                    this.commands.set(command.name, command);
+                    command.group = dir.name;
 
                 });
 
@@ -48,6 +49,20 @@ class Registry {
         }
 
         logger.print('Commands loaded.');
+
+    }
+
+    find(cmd) {
+
+        logger.debug('Attempting to find command: ' + cmd);
+
+        let command = this.commands.get(cmd);
+        if(command) return command;
+
+        command = this.commands.find(val => {val.aliases.includes(cmd)});
+        if(command) return command;
+
+        return false;
 
     }
 
