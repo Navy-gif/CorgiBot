@@ -5,7 +5,8 @@ class Corgi extends Command {
     constructor() {
 
         super({
-            name: 'corgi'
+            name: 'corgi',
+            aliases: []
         });
 
     }
