@@ -1,7 +1,28 @@
 {
-
-    "scripts": {
-        "start": "node --trace-warnings index.js"
-    }
-
+  "name": "corgibot",
+  "version": "1.0.0",
+  "description": "A bot for displaying images/gifs of corgis on discord",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node --trace-warnings index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Navy-gif/CorgiBot.git"
+  },
+  "keywords": [
+    "corgi",
+    "corgis",
+    "bot"
+  ],
+  "author": "Navy.gif",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Navy-gif/CorgiBot/issues"
+  },
+  "homepage": "https://github.com/Navy-gif/CorgiBot#readme",
+  "dependencies": {
+    "discord.js": "^11.5.1"
+  }
 }
