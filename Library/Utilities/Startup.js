@@ -1,6 +1,7 @@
 const index = require('../../index');
 const logger = require('./Logger');
-const bot = require('../Bot');
+const Bot = require('../Bot');
+const Database = require('./Database');
 
 class Startup {
 
@@ -15,10 +16,15 @@ class Startup {
         //Start logger
         index.util.logger = await logger.init();
         index.util.logger.print('Log test.');
+        index.util.logger.debug('Debug test');
         index.util.logger.error('Error test.');
 
+        //Connect to database
+        index.database = new Database(require('../../../Config/mongodb.json'));
+        await index.database.init();
+
         //Bot
-        index.bot = await bot.init(process.cwd(), require('../../../Config/BotConfig.json'));
+        index.bot = await Bot.init(process.cwd(), require('../../../Config/BotConfig.json'));
 
     }
 
