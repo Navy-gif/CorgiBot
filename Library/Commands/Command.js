@@ -6,7 +6,8 @@ class Command {
         this.aliases = data.aliases || [];
         this.group;
         this.devOnly = data.devOnly || false;
-        this.perms = data.perms || false;
+        this.perms = data.perms || [];
+        this.permRequired = data.permRequired || false;
         this.contributor = false;
         this.usage = data.usage || 'TBD';
 

@@ -1,4 +1,6 @@
 const djs = require('discord.js');
+const { Member, Channel } = djs;
+const Command = require('./Commands/Command');
 const index = require('../index');
 const logger = require('./Utilities/Logger');
 const Registry = require('./Structures/Registry');
@@ -15,6 +17,7 @@ class Bot {
         this.client;
         this.prefixes = [];
         this.DataStore = new djs.Collection();
+        this.perms = [];
 
     }
 
@@ -33,6 +36,15 @@ class Bot {
         this.registry.init();
         this.registry.loadTemplateCommands('Animals', Object.keys(index.animals));
 
+        //Read all commands into an array
+        this.registry.commands.forEach(command => {
+
+            command.perms.forEach(perm => {
+                if(!this.perms.includes(perm)) this.perms.push(perm);
+            });
+            
+        });
+
         //Log in
         logger.print('Logging in to Discord.');
         await this.client.login(config.token);
@@ -50,10 +62,13 @@ class Bot {
             logger.print(`  Loading settings for: ${guild.name}`);
             let gd, data = await index.database.findOne('discord_guilds', { id: guild.id });
             if(!data) {
-                gd = new GuildData({ id: guild.id });
+                gd = new GuildData({ id: guild.id, guild: guild });
                 gd.update();
             }
-            else gd = new GuildData(data);
+            else {
+                data.guild = guild;
+                gd = new GuildData(data);
+            }
             this.DataStore.set(gd.id, gd);
 
         }
@@ -119,7 +134,9 @@ class Bot {
         let gd = this.getData(message.guild.id);
         let punishments = ['DEATH BY HANGING', 'DEATH BY FIRING SQUAD', 'DEATH BY DROWNING', 'DEATH BY BEHEADING', 'DEATH BY ASPHYXIATION', 'INDEFINITE INVOLUNTARY SERVITUDE','NONE','PERMANENT BAN'];
         
-        if((command.devOnly && !index.devs.includes(message.author.id)) || (command.perms && command.perms.length > 0) || (command.contributor && !index.contrubors.includes(message.author.id) && !index.devs.includes(message.author.id))) {
+        if((command.devOnly && !index.devs.includes(message.author.id)) || 
+        (!this.hasPerms(message.member, message.channel, command)) || 
+        (command.contributor && !index.contrubors.includes(message.author.id) && !index.devs.includes(message.author.id))) {
             if(gd.settings.ignore && gd.settings.ignore.includes(message.channel.id)) return;
             else {
                 await message.channel.send(`Insufficient permissions.\nPunishment: \`[${punishments[~~(Math.random()*punishments.length)]}]\``).catch(err => logger.error(err));
@@ -143,7 +160,9 @@ class Bot {
             channel: message.channel,
             guild: message.guild,
             author: message.author,
-            args: args
+            args: args,
+            bot: this,
+            guilddata: gd
         }).catch(err => {
             logger.error(err.stack);
             if(err instanceof CommandError) return `Command errored with message: \`${err.getPub()}\``;
@@ -154,20 +173,108 @@ class Bot {
 
         if(!response) return;
 
-        if(response instanceof EmbeddedResponse) await message.channel.send({embed: response});
-        else await message.channel.send(response.toString());
+        if(message.channel.permissionsFor(message.guild.me).has('VIEW_CHANNEL') &&
+        message.channel.permissionsFor(message.guild.me).has('SEND_MESSAGES')) {
+
+            if(response instanceof EmbeddedResponse) await message.channel.send({embed: response});
+            else await message.channel.send(response.toString());
+
+        } else {
+
+            logger.debug(`Insufficient permissions to send messages in channel ${message.channel.name} (${message.channel.id})`);
+
+        }
+
+        
 
     }
 
     getData(id) {
 
+        if(typeof id === "object") id = id.id;
         return this.DataStore.get(id);
 
     }
 
-    hasPerms(member) {
+    /**
+     * Method to check if a member has the necessary permissions to use the bot in the server or a specific channel
+     *
+     * @param {Member} member The member whose permissions to check.
+     * @param {Channel} channel The channel in which the command was invoked.
+     * @param {Command} command The command to be invoked.
+     * @returns {boolean}
+     * @memberof Bot
+     */
+    hasPerms(member, channel, command) {
 
+        let commandPerms = command.perms,
+        gd = this.getData(member.guild.id);
+        let grantedPerms = gd.perms ? gd.perms.granted : undefined,
+        revokedPerms = gd.perms ? gd.perms.revoked : undefined,
+        memRoles = member.roles,
+        canDo = !command.permRequired;
+        
+        if(!grantedPerms && !revokedPerms) return canDo;
 
+        /** 
+         * perms = {
+            granted: {
+                server: {
+                    perm: [ role ]
+                },
+                channels: {
+                    channel: {
+                        perm: [ role ]
+                    },
+                    channel: {
+                        perm: [ role ]
+                    }
+                }
+            },
+            revoked: {
+                server: {
+                    perm: [ role ]
+                },
+                channels: {
+                    channel: {
+                        perm: [ role ]
+                    },
+                    channel: {
+                        perm: [ role ]
+                    }
+                }
+            }
+        }
+        */
+
+        for(let role of memRoles.array()) {
+
+            for(let perm of commandPerms) {
+
+                //Check if the user has explicitly been denied the permission to use the bot in the server
+                if(revokedPerms && revokedPerms.server &&
+                    revokedPerms.server[perm] &&
+                    revokedPerms.server[perm].includes(role.id)) return false;
+                if(revokedPerms && revokedPerms.channels &&
+                    revokedPerms.channels[channel.id] &&
+                    revokedPerms.channels[channel.id][perm] &&
+                    revokedPerms.channels[channel.id][perm].includes(role.id)) return false;
+
+                //Check if user has permissions to use bot in the whole server
+                if(grantedPerms && grantedPerms.server && 
+                    grantedPerms.server[perm] && 
+                    grantedPerms.server[perm].includes(role.id)) return true;
+                //Check if user has permissions to use the bot in the channel the command was invoked in
+                if(grantedPerms && grantedPerms.channels && 
+                    grantedPerms.channels[channel.id] && 
+                    grantedPerms.channels[channel.id][perm] && 
+                    grantedPerms.channels[channel.id][perm].includes(role.id)) return true;
+
+            }
+
+        }
+
+        return canDo;
 
     }
 
@@ -209,7 +316,7 @@ class Bot {
           return diff.toFixed() + ` second${diff.toFixed() != 1 ? 's' : ''}`;
         }
     
-      }
+    }
 
 }
 
