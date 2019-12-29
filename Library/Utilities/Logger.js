@@ -30,20 +30,20 @@ class Logger {
         if(!this.logbook) return;
         let date = new Date();
         let offset = -date.getTimezoneOffset()/60;
-        this.logbook.write(`[${date.getHours()}:${date.getMinutes()}:${date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds()} (GMT${offset >= 0 ? '+' + offset : '-' + offset })] - ${text}\n`);
+        this.logbook.write(`[${date.getHours() < 10 ? `0${date.getHours()}` : date.getHours() }:${date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes()}:${date.getSeconds() < 10 ? `0${date.getSeconds()}` : date.getSeconds()} (GMT${offset >= 0 ? '+' + offset : '-' + offset })] - ${text}\n`);
 
     }
 
     print(text) {
 
-        this.log(text);
-        console.log(text);
+        this.log(`[INFO] ${text}`);
+        console.log(`[INFO] ${text}`);
 
     }
 
     error(text) {
 
-        this.log(`⚠️ [ERROR] ${text}`);
+        this.log(`[ERROR] ${text}`);
         console.error(`⚠️ [ERROR] ${text}`);
 
     }

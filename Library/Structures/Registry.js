@@ -22,7 +22,13 @@ class Registry {
 
         logger.print('Loading commands:');
 
-        let commandsFolder = fs.readdirSync(this.commandsPath, { withFileTypes: true });
+        let commandsFolder;
+        try{
+            commandsFolder = fs.readdirSync(this.commandsPath, { withFileTypes: true });
+        } catch(err) {
+            logger.error(`Error reading directory: ${this.commandsPath}\n${err.stack}`);
+            return;
+        }
         
         for(let dir of commandsFolder) {
 
@@ -52,6 +58,15 @@ class Registry {
 
     }
 
+    /**
+     * Loads commands from a template, generally used for commands that have very subtle differences to
+     * a degree where they can easily be abstracted.
+     *
+     * @param {String} templateName Name of the classfile of the template.
+     * @param {Array} [commandNames=[]] An array of the command names that are to be generated
+     * @returns
+     * @memberof Registry
+     */
     loadTemplateCommands(templateName, commandNames = []) {
 
         let template = templateName[0].toUpperCase() + templateName.substring(1).toLowerCase();

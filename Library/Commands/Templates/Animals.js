@@ -8,7 +8,8 @@ class AnimalsTemplate extends Command {
 
         super({
             name: name,
-            aliases: aliases
+            aliases: aliases,
+            perms: [ 'animals', name ],
         });
 
     }
