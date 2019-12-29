@@ -7,6 +7,8 @@ class Command {
         this.group;
         this.devOnly = data.devOnly || false;
         this.perms = data.perms || false;
+        this.contributor = false;
+        this.usage = data.usage || 'TBD';
 
     }
 
