@@ -23,6 +23,10 @@ class Startup {
         index.database = new Database(require('../../../Config/mongodb.json'));
         await index.database.init();
 
+        //Fetch image links to memory
+        index.animals.corgi = await index.database.findOne('animals', { type: 'corgi' }).then(data => { return data.images });
+        index.animals.shibe = await index.database.findOne('animals', { type: 'shibe' }).then(data => { return data.images });
+
         //Bot
         index.bot = await Bot.init(process.cwd(), require('../../../Config/BotConfig.json'));
 
