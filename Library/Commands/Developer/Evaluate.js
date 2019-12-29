@@ -16,7 +16,7 @@ class Evaluate extends Command {
 
     }
 
-    async call({ content }) {
+    async call({ message, content }) {
 
         try {
 
@@ -28,7 +28,7 @@ class Evaluate extends Command {
             if(result !== undefined) {
                 if(result.length > 2000) {
                     logger.print(result);
-                    return new EmbeddedResponse('```Result too long, see console.```');
+                    return new EmbeddedResponse('```Result too long, see console.```').setTitle('👍 Success!');
                 } else {
                     return new EmbeddedResponse(`\`\`\`${result}\`\`\``).setTitle('👍 Success!');
                 }
@@ -37,7 +37,7 @@ class Evaluate extends Command {
         } catch(err) {
 
             logger.error(err.stack);
-            return new EmbeddedResponse(`\`\`\`${err}\`\`\``).setTitle('👎 Error!');
+            return new EmbeddedResponse(`\`\`\`${err}\`\`\``).setTitle('👎 Error!').setColor(0xD81F1F);
             
         }
 
