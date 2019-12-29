@@ -32,7 +32,9 @@ class Startup {
         //console.log(index.animals)
 
         //Bot
-        index.bot = await Bot.init(process.cwd(), require('../../../Config/BotConfig.json'));
+        let path = process.cwd();
+        if(!path.endsWith('CorgiBot')) path += `\\CorgiBot`;
+        index.bot = await Bot.init(path, require('../../../Config/BotConfig.json'));
 
     }
 
