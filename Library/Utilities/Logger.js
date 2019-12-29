@@ -7,6 +7,7 @@ class Logger {
     constructor() {
 
         this.logbook;
+        this.interval;
 
     }
 
@@ -19,6 +20,7 @@ class Logger {
         }
         this.logbook = fs.createWriteStream(`../CorgiBot-Logs/CorgiBot-${~~(Date.now()/1000)}.log`);
         this.logbook.write(`====== CorgiBot Logbook - ${new Date().toUTCString()} ======\n\n`);
+        this.interval = setInterval(() => {this.logbook.write(`\n============ ${new Date().toUTCString()} ============\n`)}, 15*60*1000)
         return this;
 
     }
