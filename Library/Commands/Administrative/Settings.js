@@ -14,11 +14,9 @@ class Settings extends Command {
 
     }
 
-    call() {
+    async call() {
 
-        return new Promise((resolve, reject) => {
-            reject(new CommandError('Command not defined.','Command is yet to be defined.'));
-        });
+        return `Soon:tm:`
 
     }
 
