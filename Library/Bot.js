@@ -113,18 +113,22 @@ class Bot {
         //See if the user has necessary perms
         let gd = this.getData(message.guild.id);
         let punishments = ['DEATH BY HANGING', 'DEATH BY FIRING SQUAD', 'DEATH BY DROWNING', 'DEATH BY BEHEADING', 'DEATH BY ASPHYXIATION', 'INDEFINITE INVOLUNTARY SERVITUDE','NONE','PERMANENT BAN'];
-        if(command.devOnly && !index.devs.includes(message.author.id)) {
+        
+        if((command.devOnly && !index.devs.includes(message.author.id)) || (command.perms && command.perms.length > 0) || (command.contributor && !index.contrubors.includes(message.author.id) && !index.devs.includes(message.author.id))) {
             if(gd.settings.ignore && gd.settings.ignore.includes(message.channel.id)) return;
             else {
                 await message.channel.send(`Insufficient permissions.\nPunishment: \`[${punishments[~~(Math.random()*punishments.length)]}]\``).catch(err => logger.error(err));
                 return;
             }
-        }
+        } /*else if(command.perms && command.perms.length > 0) {
 
-        //Parse args here
+        } else if(command.contributor && !index.contrubors.includes(message.author.id) && !index.devs.includes(message.author.id))*/
+
+        //Parse args
         let argReg = /("[^"']*"|[^"'\s]+)(\s+|$)/img;
         let args = message.content.match(argReg) || [];
-        for(let arg of args) arg = arg.replace(/['"\n]/g, '').trim().toLowerCase();
+        for(let i = 0; i < args.length; i++) args[i] = args[i].replace(/['"\n]/g, '').toLowerCase().trim();
+        logger.debug('Args: [ ' + args.join(', ') + ' ]');
 
         //Await for command response
         let response = await command.call({
@@ -136,12 +140,11 @@ class Bot {
             author: message.author,
             args: args
         }).catch(err => {
-            logger.error(err);
+            logger.error(err.stack);
             if(err instanceof CommandError) return `Command errored with message: \`${err.getPub()}\``;
             else return `An internal error occurred!`;
         });
 
-        logger.debug('Args: [ ' + args.join(', ') + ' ]');
         logger.debug('Command response: ' + response);
 
         if(!response) return;
