@@ -2,12 +2,24 @@ const Response = require('./Response');
 
 class EmbeddedResponse extends Response {
 
-    constructor(text) {
+    constructor(text = '') {
 
         super(text);
         this.color = 2087002;
         this.fields = [];
 
+    }
+
+    /**
+     * Set the main body of the embed.
+     *
+     * @param {String} text
+     * @returns Itself for chaining purposes.
+     * @memberof EmbeddedResponse
+     */
+    setDescription(text) {
+        super.description = text;
+        return this;
     }
 
     /**
@@ -17,7 +29,7 @@ class EmbeddedResponse extends Response {
      * @returns Itself for chaining purposes.
      * @memberof EmbeddedResponse
      */
-    addTitle(text) {
+    setTitle(text) {
         this.title = text;
         return this;
     }
