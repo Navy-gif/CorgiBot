@@ -4,7 +4,7 @@ const logger = require('./Utilities/Logger');
 const Registry = require('./Structures/Registry');
 const GuildData = require('./Structures/GuildData');
 const EmbeddedResponse = require('./Structures/EmbeddedResponse');
-const Response = require('./Structures/Response');
+const CommandError = require('./Structures/CommandError');
 
 class Bot {
 
@@ -137,7 +137,8 @@ class Bot {
             args: args
         }).catch(err => {
             logger.error(err);
-            return `Command errored with message: \`${err.getPub()}\``
+            if(err instanceof CommandError) return `Command errored with message: \`${err.getPub()}\``;
+            else return `An internal error occurred!`;
         });
 
         logger.debug('Args: [ ' + args.join(', ') + ' ]');
