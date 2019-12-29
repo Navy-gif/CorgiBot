@@ -1,5 +1,4 @@
 const Command = require('../Command');
-const CommandError = require('../../Structures/CommandError');
 const index = require('../../../index');
 const util = require('util');
 const logger = require('../../Utilities/Logger');
@@ -31,14 +30,15 @@ class Evaluate extends Command {
                     logger.print(result);
                     return new EmbeddedResponse('```Result too long, see console.```');
                 } else {
-                    return new EmbeddedResponse(`\`\`\`${result}\`\`\``).addTitle('👍 Success!');
+                    return new EmbeddedResponse(`\`\`\`${result}\`\`\``).setTitle('👍 Success!');
                 }
             }
 
         } catch(err) {
 
             logger.error(err.stack);
-            return new EmbeddedResponse(`\`\`\`${err}\`\`\``).addTitle('👎 Error!');
+            return new EmbeddedResponse(`\`\`\`${err}\`\`\``).setTitle('👎 Error!');
+            
         }
 
     }
