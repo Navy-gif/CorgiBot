@@ -127,6 +127,21 @@ class Database {
 
     }
 
+    push(db, filter, data, upsert = false) {
+
+        return new Promise((resolve, reject) => {
+
+            this.db.collection(db).updateOne(filter, { $push: data }, async (error, result) => {
+
+                if(error) return reject(error);
+                else return resolve(result);
+
+            });
+
+        });
+
+    }
+
 }
 
 module.exports = Database;
