@@ -131,7 +131,7 @@ class Database {
 
         return new Promise((resolve, reject) => {
 
-            this.db.collection(db).updateOne(filter, { $push: data }, async (error, result) => {
+            this.db.collection(db).updateOne(filter, { $push: data }, { upsert: upsert }, async (error, result) => {
 
                 if(error) return reject(error);
                 else return resolve(result);
