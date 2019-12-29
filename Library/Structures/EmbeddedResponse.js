@@ -52,8 +52,8 @@ class EmbeddedResponse extends Response {
      * @returns Itself for chaining purposes.
      * @memberof EmbeddedResponse
      */
-    addTimestamp() {
-        this.timestamp = new Date();
+    addTimestamp(date) {
+        this.timestamp = date || new Date();
         return this;
     }
 
@@ -76,8 +76,9 @@ class EmbeddedResponse extends Response {
      * @returns Itself for chaining purposes.
      * @memberof EmbeddedResponse
      */
-    addFooter(obj) {
-        this.footer = obj;
+    addFooter(text, icon) {
+        if(!text) return this;
+        this.footer = { text: text, icon: icon };
         return this;
     }
 
@@ -116,8 +117,30 @@ class EmbeddedResponse extends Response {
      * @returns Itself for chaining purposes.
      * @memberof EmbeddedResponse
      */
-    addField(field) {
-        this.fields.push(field);
+    addFieldObject({ name, value, inline = false }) {
+        if(this.fields.length >= 25) {
+            logger.error('Embed cannot have more than 25 fields! The exceeding fields are ignored.')
+            return this;
+        }
+        this.fields.push({ name: name, value: value, inline: inline });
+        return this;
+    }
+
+    /**
+     * Add a custom field to the embed.
+     *
+     * @param {String} name The name of the field.
+     * @param {String} value The text the field should display.
+     * @param {boolean} [inline=false] Whether or not the field is displayed inline.
+     * @returns Itself for chaining purposes.
+     * @memberof EmbeddedResponse
+     */
+    addField(name, value, inline = false) {
+        if(this.fields.length >= 25) {
+            logger.error('Embed cannot have more than 25 fields! The exceeding fields are ignored.')
+            return this;
+        }
+        this.fields.push({ name: name, value: value, inline: inline });
         return this;
     }
 

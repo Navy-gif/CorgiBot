@@ -15,12 +15,15 @@ class Commands extends Command {
 
         let response = new EmbeddedResponse().setTitle('**CorgiBot Commands**');
         if(args.length === 0) {
+            
             let groupNames = bot.registry.groups.keyArray();
+
             for(let group of groupNames) {
                 let obj = { name: `**${group}**`, inline: true, value: '' };
                 bot.registry.groups.get(group).forEach(cmd => obj.value += `${cmd.name}\n`);
-                response.addField(obj);
+                response.addFieldObject(obj);
             }
+
         } else if(args[0]) {
 
             let gname = args[0][0].toUpperCase() + args[0].substring(1).toLowerCase();
