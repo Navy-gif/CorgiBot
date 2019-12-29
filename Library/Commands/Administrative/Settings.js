@@ -1,6 +1,7 @@
 const Command = require('../Command');
 const CommandError = require('../../Structures/CommandError');
 const logger = require('../../Utilities/Logger');
+const EmbeddedResponse = require('../../Structures/EmbeddedResponse');
 
 class Settings extends Command {
 
@@ -9,7 +10,8 @@ class Settings extends Command {
         super({
             name: 'settings',
             aliases: [],
-            perms: ['admin', 'settings']
+            perms: ['admin', 'settings'],
+            permRequired: true
         });
 
     }

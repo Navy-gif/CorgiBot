@@ -37,14 +37,16 @@ class Contribute extends Command {
                 if(args.length === 0) return new EmbeddedResponse('Provide a category name!').setTitle('**Error** ⚠️');
 
                 let name = args.shift().toLowerCase();
+                if(index.animals[name]) return new EmbeddedResponse('The category already exists!').setTitle('**Error** ⚠️');
                 index.animals[name] = [];
-                let error
+                let error;
                 let result = await db.updateOne('animals', { type: name }, { type: name, images: index.animals[name] }, true).catch(err => error = err);
 
                 if(error) {
                     logger.error(error);
                     return new EmbeddedResponse('Something went wrong with inserting to database.').setTitle('**Error** ⚠️');
                 } else {
+                    index.bot.registry.loadTemplateCommands('Animals', [ name ]);
                     logger.print(`${author.tag} (${author.id}) created a new animal collection for ${name}. Result: ${JSON.stringify(result)}`);
                     return new EmbeddedResponse(`Successfully created ${name} collection!`).setTitle('Success!');
                 }

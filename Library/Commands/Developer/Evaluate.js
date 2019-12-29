@@ -16,7 +16,7 @@ class Evaluate extends Command {
 
     }
 
-    async call({ message, content }) {
+    async call({ message, content, bot }) {
 
         try {
 
@@ -27,7 +27,7 @@ class Evaluate extends Command {
 
             if(result !== undefined) {
                 if(result.length > 2000) {
-                    logger.print(result);
+                    logger.print(JSON.stringify(result));
                     return new EmbeddedResponse('```Result too long, see console.```').setTitle('👍 Success!');
                 } else {
                     return new EmbeddedResponse(`\`\`\`${result}\`\`\``).setTitle('👍 Success!');

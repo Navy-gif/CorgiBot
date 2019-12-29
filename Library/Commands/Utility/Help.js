@@ -1,4 +1,6 @@
 const Command = require('../Command');
+const EmbeddedResponse = require('../../Structures/EmbeddedResponse');
+const index = require('../../../index');
 
 class Help extends Command {
 
