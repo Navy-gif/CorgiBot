@@ -26,7 +26,7 @@ class Registry {
         
         for(let dir of commandsFolder) {
 
-            if(dir.isDirectory()) {
+            if(dir.isDirectory() && dir.name !== 'Templates') {
 
                 logger.print(`  Loading group: ${dir.name}`);
 
@@ -49,6 +49,29 @@ class Registry {
         }
 
         logger.print('Commands loaded.');
+
+    }
+
+    loadTemplateCommands(templateName, commandNames = []) {
+
+        let template = templateName[0].toUpperCase() + templateName.substring(1).toLowerCase();
+        logger.print('Loading template commands for: ' + template);
+        let templates = fs.readdirSync(this.commandsPath + `\\Templates`);
+        template = templates.find(elem => elem === `${template}.js`);
+        
+        if(!template) {
+            logger.error(`Failed to load template commands for: ${template} with names: ${commandNames.join(', ')}`);
+            return;
+        }
+        
+        template = require(this.commandsPath + `\\Templates\\${template}`);
+        for(let command of commandNames) {
+            logger.print(`  Loading template command: ${command}`);
+            let cmd = new template(command);
+            if(!this.groups.has(templateName)) this.groups.set(templateName, new Collection());
+            this.groups.get(templateName).set(cmd.name, cmd);
+            this.commands.set(cmd.name, cmd);
+        }
 
     }
 

@@ -31,6 +31,7 @@ class Bot {
         //Load commands
         this.registry = new Registry(`${this.directory}\\Library\\Commands`);
         this.registry.init();
+        this.registry.loadTemplateCommands('Animals', Object.keys(index.animals));
 
         //Log in
         logger.print('Logging in to Discord.');
@@ -65,6 +66,10 @@ class Bot {
     createListeners() {
 
         logger.print('Setting up listeners.');
+
+        this.client.on('guildCreate', guild => { logger.print(`Bot joined ${guild.name} (${guild.id})`) });
+
+        this.client.on('guildDelete', guild => { logger.print(`Bot left ${guild.name} (${guild.id})`) });
 
         this.client.on('ready', () => logger.print('Bot is ready, awaiting instructions.'))
 
@@ -165,6 +170,46 @@ class Bot {
 
 
     }
+
+    /**
+     * Converts the difference in time to more human readable times
+     *
+     * @param {Int} diff The time difference in seconds.
+     * @param {boolean} [extraMin=false] Display additional minutes after hours (ex. 1 hour 30 minutes instead of 1 hour)
+     * @param {boolean} [extraHours=false] Display additional hours after days (ex. 1 day 2 hours instead of 1 day)
+     * @param {boolean} [extraDays=false] Display additional days after weeks and months (ex. 1 week 3 days instead of 1 week)
+     * @returns A string representation of the time difference (ex. diff=3600 would return 1 hour)
+     * @memberof Bot
+     */
+    timeAgo(diff, extraMin = false, extraHours = false, extraDays = false) {
+
+        diff = parseInt(diff);
+        if(isNaN(diff)) return 'that ain\'t it chief (not a number)';
+    
+        let years = ~~(diff/60/60/24/365),
+            months = ~~(diff/60/60/24/30.4),
+            weeks = extraDays ? ~~(diff/60/60/24/7) : (diff/60/60/24/7).toFixed(),
+            days = extraHours ? ~~(diff/60/60/24) : (diff/60/60/24).toFixed(),
+            hours = extraMin ? ~~(diff/60/60) : (diff/60/60).toFixed(),
+            minutes = (diff/60).toFixed();
+    
+        if(days > 365){
+          return `${years > 0 ? years : 1} year${years > 1 ? 's' : ''} ${months%12 > 0 ? `${months%12} month${months%12 > 1 ? 's':''}` : ''}`;
+        } else if(weeks > 4){
+          return `${months} month${months%12 > 1 ? 's' : ''} ${days%30 > 0 ? `${days%30} day${days%30 > 1 ? 's' : ''}` : ''}`;
+        } else if(days >= 7) {
+          return `${weeks} week${weeks > 1 ? 's' : ''} ${extraDays && days%7 > 0 ? `${days%7} day${days%7 > 1 ? 's' : ''}` : '' }`
+        } else if(hours >= 24){
+          return `${days} day${days > 1 ? 's' : ''} ${extraHours && hours%24 > 0 ? `${hours%24} hour${hours%24 > 1 ? 's' : ''}` : ''}`;
+        } else if(minutes >= 60) {
+          return `${hours} hour${hours > 1 ? 's' : ''} ${extraMin && minutes%60 > 0 ? `${minutes%60} minute${minutes%60 > 1 ? 's' : ''}` : '' }`;
+        } else if(diff >= 60) {
+          return `${minutes} minute${minutes > 1 ? 's' : ''}`;
+        } else {
+          return diff.toFixed() + ` second${diff.toFixed() != 1 ? 's' : ''}`;
+        }
+    
+      }
 
 }
 
