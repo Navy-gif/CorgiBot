@@ -6,7 +6,7 @@ class GuildData {
     constructor(data) {
 
         this.id;
-        this.settings;
+        this.settings = {};
         this.perms = {};
         this.guild;
 
