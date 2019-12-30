@@ -251,25 +251,23 @@ class Bot {
 
             for(let perm of commandPerms) {
 
-                //Check if the user has explicitly been denied the permission to use the bot in the server
-                if(revokedPerms && revokedPerms.server &&
-                    revokedPerms.server[perm] &&
-                    revokedPerms.server[perm].includes(role.id)) return false;
+                //Check for any channel perms
                 if(revokedPerms && revokedPerms.channels &&
                     revokedPerms.channels[channel.id] &&
                     revokedPerms.channels[channel.id][perm] &&
                     revokedPerms.channels[channel.id][perm].includes(role.id)) return false;
-
-                //Check if user has permissions to use bot in the whole server
-                if(grantedPerms && grantedPerms.server && 
-                    grantedPerms.server[perm] && 
-                    grantedPerms.server[perm].includes(role.id)) return true;
-                //Check if user has permissions to use the bot in the channel the command was invoked in
                 if(grantedPerms && grantedPerms.channels && 
                     grantedPerms.channels[channel.id] && 
                     grantedPerms.channels[channel.id][perm] && 
                     grantedPerms.channels[channel.id][perm].includes(role.id)) return true;
 
+                //Check serverwide permissions
+                if(revokedPerms && revokedPerms.server &&
+                    revokedPerms.server[perm] &&
+                    revokedPerms.server[perm].includes(role.id)) return false;
+                if(grantedPerms && grantedPerms.server && 
+                    grantedPerms.server[perm] && 
+                    grantedPerms.server[perm].includes(role.id)) return true;
             }
 
         }
