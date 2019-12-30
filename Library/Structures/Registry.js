@@ -86,7 +86,10 @@ class Registry {
             if(!this.groups.has(templateName)) this.groups.set(templateName, new Collection());
             this.groups.get(templateName).set(cmd.name, cmd);
             this.commands.set(cmd.name, cmd);
+            cmd.group = templateName;
         }
+
+        logger.print('Template commands loaded.');
 
     }
 
