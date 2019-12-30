@@ -7,6 +7,7 @@ const Registry = require('./Structures/Registry');
 const GuildData = require('./Structures/GuildData');
 const EmbeddedResponse = require('./Structures/EmbeddedResponse');
 const CommandError = require('./Structures/CommandError');
+const fs = require('fs');
 
 class Bot {
 
@@ -16,8 +17,10 @@ class Bot {
         this.directory;
         this.client;
         this.prefixes = [];
+        this.defaultPrefix;
         this.DataStore = new djs.Collection();
         this.perms = [];
+        this.settings = {};
 
     }
 
@@ -51,7 +54,7 @@ class Bot {
         logger.print(`Logged in as ${this.client.user.tag}!`);
 
         //Set up prefixes
-        this.prefixes.push(config.prefix);
+        this.defaultPrefix = config.prefix;
         this.prefixes.push(`<@${this.client.user.id}>`, `<@!${this.client.user.id}>`, `<@${this.client.user.id}> `, `<@!${this.client.user.id}> `);
         logger.debug('Prefixes: ' + this.prefixes.join(', '));
 
@@ -62,6 +65,7 @@ class Bot {
             logger.print(`  Loading settings for: ${guild.name}`);
             let gd, data = await index.database.findOne('discord_guilds', { id: guild.id });
             if(!data) {
+                logger.print(`    First time setup for: ${guild.name}`);
                 gd = new GuildData({ id: guild.id, guild: guild });
                 gd.update();
             }
@@ -72,9 +76,32 @@ class Bot {
             this.DataStore.set(gd.id, gd);
 
         }
+        logger.print('Guild settings loaded.');
+
+        //Load settings
+        this.loadSettings(`${this.directory}\\Library\\Settings`);
 
         logger.print('DONE.');
         return this;
+
+    }
+
+    loadSettings(path) {
+
+        logger.print('Loading settings.');
+
+        let dir = fs.readdirSync(path);
+        for(let setting of dir) {
+
+            logger.print(`  Loading setting: ${setting}`);
+
+            let setPath = `${path}\\${setting}`;
+            let set = require(setPath);
+            this.settings[set.name] = set;
+
+        }
+
+        logger.print('Settings loaded.');
 
     }
 
@@ -82,7 +109,20 @@ class Bot {
 
         logger.print('Setting up listeners.');
 
-        this.client.on('guildCreate', guild => { logger.print(`Bot joined ${guild.name} (${guild.id})`) });
+        this.client.on('guildCreate', async guild => { 
+            logger.print(`Bot joined ${guild.name} (${guild.id})`) ;
+            let gd, data = await index.database.findOne('discord_guilds', { id: guild.id });
+            if(!data) {
+                logger.print(`  First time setup for: ${guild.name}`);
+                gd = new GuildData({ id: guild.id, guild: guild });
+                gd.update();
+            }
+            else {
+                data.guild = guild;
+                gd = new GuildData(data);
+            }
+            this.DataStore.set(gd.id, gd);
+        });
 
         this.client.on('guildDelete', guild => { logger.print(`Bot left ${guild.name} (${guild.id})`) });
 
@@ -105,11 +145,16 @@ class Bot {
         message.content = message.content.replace(/[\u201C\u201D\u201E\u201F\u2033\u2036]/g, "\"");
 
         //Parse prefix
+        let prefixes = this.prefixes, gd = this.getData(message.guild.id);
+        if('prefix' in gd.settings) prefixes = prefixes.concat(gd.settings.prefix);
+        else prefixes = prefixes.concat(this.defaultPrefix);
+
+        logger.debug(`Prefixes: ${prefixes}`);
         let prefixFound = false;
-        for(let prefix of this.prefixes) {
+        for(let prefix of prefixes) {
             
             if(message.content.startsWith(prefix)) {
-                logger.debug('Found prefix!');
+                logger.debug('Found prefix: ' + prefix);
                 message.content = message.content.replace(prefix, '').trim();
                 prefixFound = true;
                 break;
@@ -131,7 +176,6 @@ class Bot {
         logger.debug('Command found.');
 
         //See if the user has necessary perms
-        let gd = this.getData(message.guild.id);
         let punishments = ['DEATH BY HANGING', 'DEATH BY FIRING SQUAD', 'DEATH BY DROWNING', 'DEATH BY BEHEADING', 'DEATH BY ASPHYXIATION', 'INDEFINITE INVOLUNTARY SERVITUDE','NONE','PERMANENT BAN'];
         
         if((command.devOnly && !index.devs.includes(message.author.id)) || 
@@ -213,6 +257,9 @@ class Bot {
         revokedPerms = gd.perms ? gd.perms.revoked : undefined,
         memRoles = member.roles,
         canDo = !command.permRequired;
+
+        if(index.devs.includes(member.id)) return true;
+        if(member.hasPermission('MANAGE_GUILD', false, true, true)) return true;
         
         if(!grantedPerms && !revokedPerms) return canDo;
 
