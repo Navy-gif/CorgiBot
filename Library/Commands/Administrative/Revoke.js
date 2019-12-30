@@ -2,16 +2,15 @@ const Command = require('../Command');
 const CommandError = require('../../Structures/CommandError');
 const logger = require('../../Utilities/Logger');
 const EmbeddedResponse = require('../../Structures/EmbeddedResponse');
-const index = require('../../../index');
 
-class Grant extends Command {
+class Revoke extends Command {
 
     constructor() {
 
         super({
-            name: 'grant',
+            name: 'revoke',
             aliases: [],
-            perms: [ 'admin', 'grant' ]
+            perms: [ 'admin', 'revoke' ]
         });
 
     }
@@ -47,8 +46,8 @@ class Grant extends Command {
 
         for(let perm of args) {
 
-            if(bot.perms.includes(perm) && ((existingpermsG[perm] && !existingpermsG[perm].includes(role.id)) || !existingpermsG[perm]) && !validperms.includes(perm)) validperms.push(perm);
-            else if(bot.perms.includes(perm) && existingpermsG[perm] && existingpermsG[perm].includes(role.id)) alreadyhas.push(perm);
+            if(bot.perms.includes(perm) && ((existingpermsR[perm] && !existingpermsR[perm].includes(role.id)) || !existingpermsR[perm]) && !validperms.includes(perm)) validperms.push(perm);
+            else if(bot.perms.includes(perm) && existingpermsR[perm] && existingpermsR[perm].includes(role.id)) alreadyhas.push(perm);
             else if(!bot.perms.includes(perm)) invalid.push(perm);
 
         }
@@ -59,13 +58,13 @@ class Grant extends Command {
             if(!perms.revoked.channels[channel.id]) perms.revoked.channels[channel.id] = {};
 
             for(let perm of validperms) {
-                perms.granted.channels[channel.id][perm] ? perms.granted.channels[channel.id][perm].push(role.id) : perms.granted.channels[channel.id][perm] = [ role.id ];
-                perms.revoked.channels[channel.id][perm] ? (perms.revoked.channels[channel.id][perm].includes(role.id) ? perms.revoked.channels[channel.id][perm].splice(perms.revoked.channels[channel.id][perm].indexOf(role.id), 1) : undefined ) : perms.revoked.channels[channel.id][perm] = [ ];
+                perms.revoked.channels[channel.id][perm] ? perms.revoked.channels[channel.id][perm].push(role.id) : perms.revoked.channels[channel.id][perm] = [ role.id ];
+                perms.granted.channels[channel.id][perm] ? (perms.granted.channels[channel.id][perm].includes(role.id) ? perms.granted.channels[channel.id][perm].splice(perms.granted.channels[channel.id][perm].indexOf(role.id), 1) : undefined ) : perms.granted.channels[channel.id][perm] = [ ];
             }
         }
         else for(let perm of validperms) {
-            perms.granted.server[perm] ? perms.granted.server[perm].push(role.id) : perms.granted.server[perm] = [ role.id ];
-            perms.revoked.server[perm] ? (perms.revoked.server[perm].includes(role.id) ? perms.revoked.server[perm].splice(perms.revoked.server[perm].indexOf(role.id), 1) : undefined ) : perms.revoked.server[perm] = [ ];
+            perms.revoked.server[perm] ? perms.revoked.server[perm].push(role.id) : perms.revoked.server[perm] = [ role.id ];
+            perms.granted.server[perm] ? (perms.granted.server[perm].includes(role.id) ? perms.granted.server[perm].splice(perms.granted.server[perm].indexOf(role.id), 1) : undefined ) : perms.granted.server[perm] = [ ];
         }
 
         let error;
@@ -73,9 +72,9 @@ class Grant extends Command {
         if(error) return new EmbeddedResponse(`The command errored while inserting to the database.`).setTitle('Error.');
 
         let out;
-        if(validperms.length > 0) out = `Successfully granted **${role.name}** the following perms${channel ? ` in **${channel.name}**` : ''}:\n${validperms.join(', ')}`;
-        else out = `Failed to grant **${role.name}** any permissions.`;
-        if(alreadyhas.length > 0) `\n\n${role.name} already has these permissions:\n${alreadyhas.join(', ')}`;
+        if(validperms.length > 0) out = `Successfully revoked from **${role.name}** the following perms${channel ? ` in **${channel.name}**` : ''}:\n${validperms.join(', ')}`;
+        else out = `Failed to revoke any permissions from **${role.name}**.`;
+        if(alreadyhas.length > 0) `\n\n${role.name} already didn't have these permissions:\n${alreadyhas.join(', ')}`;
         if(invalid.length > 0) `\n\nThe following permissions are invalid:\n${invalid.join(', ')}`;
 
         console.log(validperms, alreadyhas, invalid);
@@ -85,4 +84,4 @@ class Grant extends Command {
 
 }
 
-module.exports = new Grant();
+module.exports = new Revoke();
