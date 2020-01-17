@@ -3,3 +3,5 @@ A Discord bot for displaying images/gifs of corgis (and other animals :D) on Dis
 
 Written in JavaScript using the Discord.js library.
 Uses MongoDB to store data.
+
+# NOT A COMPLETE PROJECT, PROBABLY WON'T BE UNLESS I'M BORED
