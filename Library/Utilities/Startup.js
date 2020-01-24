@@ -27,9 +27,6 @@ class Startup {
         index.util.logger.print('Loading animals into memory.')
         let animals = await index.database.find('animals', {  });
         for(let animal of animals) index.animals[animal.type] = animal.images;
-        //index.animals.corgi = await index.database.findOne('animals', { type: 'corgi' }).then(data => { return data.images });
-        //index.animals.shibe = await index.database.findOne('animals', { type: 'shibe' }).then(data => { return data.images });
-        //console.log(index.animals)
 
         //Bot
         let path = process.cwd();
