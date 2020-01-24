@@ -16,7 +16,7 @@ class Logger {
         this.print('Starting logger.');
         if(!fs.existsSync('../CorgiBot-Logs')) {
             this.print('Log directory not found, creating new.')
-            await fs.mkdirSync('../CorgiBot-Logs');
+            fs.mkdirSync('../CorgiBot-Logs');
         }
         this.logbook = fs.createWriteStream(`../CorgiBot-Logs/CorgiBot-${~~(Date.now()/1000)}.log`);
         this.logbook.write(`====== CorgiBot Logbook - ${new Date().toUTCString()} ======\n\n`);
