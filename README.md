@@ -1,3 +1,9 @@
+# OLD PROJECT
+
+**Not representative of current style nor capabilities.**
+
+
+
 # CorgiBot
 A Discord bot for displaying images/gifs of corgis (and other animals :D) on Discord.
 
